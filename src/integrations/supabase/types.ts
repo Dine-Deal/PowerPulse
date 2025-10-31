@@ -14,7 +14,165 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      energy_consumption: {
+        Row: {
+          consumption_kwh: number
+          created_at: string | null
+          id: string
+          location_id: string | null
+          temperature: number | null
+          timestamp: string
+          weather_condition: string | null
+        }
+        Insert: {
+          consumption_kwh: number
+          created_at?: string | null
+          id?: string
+          location_id?: string | null
+          temperature?: number | null
+          timestamp: string
+          weather_condition?: string | null
+        }
+        Update: {
+          consumption_kwh?: number
+          created_at?: string | null
+          id?: string
+          location_id?: string | null
+          temperature?: number | null
+          timestamp?: string
+          weather_condition?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "energy_consumption_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          city: string
+          country: string
+          created_at: string | null
+          id: string
+          latitude: number
+          longitude: number
+          region: string | null
+          timezone: string | null
+        }
+        Insert: {
+          city: string
+          country: string
+          created_at?: string | null
+          id?: string
+          latitude: number
+          longitude: number
+          region?: string | null
+          timezone?: string | null
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string | null
+          id?: string
+          latitude?: number
+          longitude?: number
+          region?: string | null
+          timezone?: string | null
+        }
+        Relationships: []
+      }
+      prediction_metrics: {
+        Row: {
+          algorithm: string
+          confidence: number | null
+          created_at: string | null
+          id: string
+          location_id: string | null
+          mae: number | null
+          mape: number | null
+          rmse: number | null
+          training_date: string | null
+        }
+        Insert: {
+          algorithm: string
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          location_id?: string | null
+          mae?: number | null
+          mape?: number | null
+          rmse?: number | null
+          training_date?: string | null
+        }
+        Update: {
+          algorithm?: string
+          confidence?: number | null
+          created_at?: string | null
+          id?: string
+          location_id?: string | null
+          mae?: number | null
+          mape?: number | null
+          rmse?: number | null
+          training_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prediction_metrics_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      predictions: {
+        Row: {
+          algorithm: string | null
+          confidence_lower: number | null
+          confidence_upper: number | null
+          created_at: string | null
+          forecast_timestamp: string
+          id: string
+          location_id: string | null
+          predicted_value: number
+          prediction_timestamp: string
+        }
+        Insert: {
+          algorithm?: string | null
+          confidence_lower?: number | null
+          confidence_upper?: number | null
+          created_at?: string | null
+          forecast_timestamp: string
+          id?: string
+          location_id?: string | null
+          predicted_value: number
+          prediction_timestamp: string
+        }
+        Update: {
+          algorithm?: string | null
+          confidence_lower?: number | null
+          confidence_upper?: number | null
+          created_at?: string | null
+          forecast_timestamp?: string
+          id?: string
+          location_id?: string | null
+          predicted_value?: number
+          prediction_timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predictions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
