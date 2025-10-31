@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { WorldMap } from "@/components/WorldMap";
 import { MetricCard } from "@/components/MetricCard";
@@ -6,8 +7,37 @@ import { ForecastChart } from "@/components/ForecastChart";
 import { PredictionScenarios } from "@/components/PredictionScenarios";
 import { Eye, Zap, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 const Dashboard = () => {
+  const [metrics, setMetrics] = useState({
+    mape: 92.3,
+    rmse: 145.2,
+    confidence: 89,
+  });
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const { data: result, error } = await supabase.functions.invoke('ml-predictions', {
+          body: { type: 'metrics' }
+        });
+
+        if (error) throw error;
+        if (result?.metrics) {
+          setMetrics({
+            mape: result.metrics.mape,
+            rmse: result.metrics.rmse,
+            confidence: result.metrics.confidence,
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+      }
+    };
+
+    fetchMetrics();
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader />
@@ -35,7 +65,7 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">MAPE</p>
-                  <p className="text-4xl font-bold text-foreground">92.3%</p>
+                  <p className="text-4xl font-bold text-foreground">{metrics.mape}%</p>
                 </div>
                 <Eye className="w-5 h-5 text-muted-foreground" />
               </div>
@@ -43,11 +73,11 @@ const Dashboard = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">RMSE</p>
-                  <p className="text-xl font-bold text-foreground">145.2<span className="text-sm text-muted-foreground ml-1">MW</span></p>
+                  <p className="text-xl font-bold text-foreground">{metrics.rmse}<span className="text-sm text-muted-foreground ml-1">MW</span></p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">CONFIDENCE</p>
-                  <p className="text-xl font-bold text-foreground">89<span className="text-sm text-muted-foreground">%</span></p>
+                  <p className="text-xl font-bold text-foreground">{metrics.confidence}<span className="text-sm text-muted-foreground">%</span></p>
                 </div>
               </div>
               

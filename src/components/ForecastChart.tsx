@@ -1,23 +1,53 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Area, AreaChart } from "recharts";
+import { useEffect, useState } from "react";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, Legend, Line, CartesianGrid } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
 
-const data = [
-  { time: "1D", historical: 32, prediction: 32, confidence_low: 30, confidence_high: 34 },
-  { time: "7D", historical: 35, prediction: 36, confidence_low: 33, confidence_high: 39 },
-  { time: "1M", historical: 38, prediction: 39, confidence_low: 35, confidence_high: 43 },
-  { time: "3M", historical: 40, prediction: 42, confidence_low: 37, confidence_high: 47 },
-  { time: "5M", historical: 42, prediction: 44, confidence_low: 39, confidence_high: 49 },
-  { time: "6M", historical: 41, prediction: 43, confidence_low: 38, confidence_high: 48 },
-  { time: "9Y", historical: 40, prediction: null, confidence_low: null, confidence_high: null },
-  { time: "1Y", historical: null, prediction: 45, confidence_low: 40, confidence_high: 50 },
-  { time: "ALL", historical: null, prediction: 48, confidence_low: 42, confidence_high: 54 },
-];
+interface ForecastData {
+  time: string;
+  historical: number | null;
+  prediction: number | null;
+  confidenceUpper: number | null;
+  confidenceLower: number | null;
+}
 
 export const ForecastChart = () => {
+  const [data, setData] = useState<ForecastData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchForecast = async () => {
+      try {
+        const { data: result, error } = await supabase.functions.invoke('ml-predictions', {
+          body: { type: 'forecast' }
+        });
+
+        if (error) throw error;
+        if (result?.forecast) {
+          setData(result.forecast);
+        }
+      } catch (error) {
+        console.error('Error fetching forecast:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchForecast();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-card rounded-lg p-6 border border-border h-full flex items-center justify-center">
+        <p className="text-muted-foreground">Loading forecast data...</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-card rounded-lg p-6 border border-border">
-      <div className="mb-6">
+    <div className="bg-card rounded-lg p-6 border border-border h-full">
+      <div className="flex items-center justify-between mb-6">
         <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          CONSUMPTION FORECAST vs ACTUAL (MAIN CHART)
+          Consumption Forecast vs Actual
         </h3>
       </div>
       
@@ -55,7 +85,7 @@ export const ForecastChart = () => {
           {/* Confidence band */}
           <Area
             type="monotone"
-            dataKey="confidence_high"
+            dataKey="confidenceUpper"
             stroke="none"
             fill="url(#colorConfidence)"
             fillOpacity={1}

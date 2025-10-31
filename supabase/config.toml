@@ -1,1 +1,7 @@
 project_id = "yzzgfubbdfpjaycqcdzy"
+
+[functions.ml-predictions]
+verify_jwt = false
+
+[functions.setup-neon-db]
+verify_jwt = false
